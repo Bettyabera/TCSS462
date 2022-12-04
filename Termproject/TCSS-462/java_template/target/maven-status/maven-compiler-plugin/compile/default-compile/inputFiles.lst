@@ -1,8 +1,8 @@
-/home/betelhem/Termproject/TCSS-462/java_template/src/main/java/local/Local.java
-/home/betelhem/Termproject/TCSS-462/java_template/src/main/java/saaf/Inspector.java
-/home/betelhem/Termproject/TCSS-462/java_template/src/main/java/lambda/Response.java
-/home/betelhem/Termproject/TCSS-462/java_template/src/main/java/ibm/Hello.java
-/home/betelhem/Termproject/TCSS-462/java_template/src/main/java/lambda/Load.java
-/home/betelhem/Termproject/TCSS-462/java_template/src/main/java/lambda/Request.java
-/home/betelhem/Termproject/TCSS-462/java_template/src/main/java/lambda/Transform.java
-/home/betelhem/Termproject/TCSS-462/java_template/src/main/java/saaf/Response.java
+/home/betelhem/TCSS462/Termproject/TCSS-462/java_template/src/main/java/lambda/Load.java
+/home/betelhem/TCSS462/Termproject/TCSS-462/java_template/src/main/java/local/Local.java
+/home/betelhem/TCSS462/Termproject/TCSS-462/java_template/src/main/java/ibm/Hello.java
+/home/betelhem/TCSS462/Termproject/TCSS-462/java_template/src/main/java/lambda/Transform.java
+/home/betelhem/TCSS462/Termproject/TCSS-462/java_template/src/main/java/saaf/Inspector.java
+/home/betelhem/TCSS462/Termproject/TCSS-462/java_template/src/main/java/lambda/Response.java
+/home/betelhem/TCSS462/Termproject/TCSS-462/java_template/src/main/java/saaf/Response.java
+/home/betelhem/TCSS462/Termproject/TCSS-462/java_template/src/main/java/lambda/Request.java

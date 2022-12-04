@@ -88,7 +88,7 @@ public class Transform implements RequestHandler<Request, HashMap<String, Object
         }
         csvReader.close();
         
-        // Do the 4 transformations on the original data
+      
         rows = transformData(rows);     
         
         //Write the Transformed file to S3
@@ -130,7 +130,7 @@ public class Transform implements RequestHandler<Request, HashMap<String, Object
                     break;
             }
         });
-        // return the Updated list
+       
         return rows;
     }
     
@@ -165,9 +165,7 @@ public class Transform implements RequestHandler<Request, HashMap<String, Object
    
     
    
-    /*
-        Method to write the transformed data back to S3 as a new file TRANSFORMED_CSV.csv
-    */    
+   
     public void writeCSV(List<ArrayList<String>> rows){
         
         //Creating values for csv file        
