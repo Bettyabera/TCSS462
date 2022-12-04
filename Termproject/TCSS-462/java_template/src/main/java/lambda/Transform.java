@@ -55,7 +55,7 @@ public class Transform implements RequestHandler<Request, HashMap<String, Object
         
         try {  
             
-            transformCSVData(objectData);
+            transfer(objectData);
         } catch (IOException ex) {
             Logger.getLogger(Transform.class.getName()).log(Level.SEVERE, null, ex);
         }         
@@ -67,7 +67,7 @@ public class Transform implements RequestHandler<Request, HashMap<String, Object
         return inspector.finish();
     }
     
-    public void transformCSVData(InputStream ipStream) throws IOException{
+    public void transfer(InputStream ipStream) throws IOException{
         BufferedReader csvReader=null;
         final String lineSep=",";
         
@@ -82,7 +82,7 @@ public class Transform implements RequestHandler<Request, HashMap<String, Object
             
             ArrayList<String> rowList = new ArrayList<>();
             
-            //Add the each row of data to an Arraylist
+            
             Collections.addAll(rowList, data);
             rows.add(rowList);            
         }
@@ -144,21 +144,21 @@ public class Transform implements RequestHandler<Request, HashMap<String, Object
     
         for (int i= 0; i < rows.size(); i++){
             if(i==0){
-                //Adding a header in the first row
+                
                 rows.get(i).add("Gross Margin") ;             
             }
             else{
-                //Get the revenue & Profit
+                
                 String revenue = rows.get(i).get(revenuColum);
                 String profit = rows.get(i).get(profitColum);
                 
-                //Calculate margin
+                
                 float margin = Float.parseFloat(profit) / Float.parseFloat(revenue);
-                //Add the margin to the csv file
-                rows.get(i).add(String.format("%.2f", margin));                
+                
+                rows.get(i).add(String.format("%.3f", margin));                
             }
         }        
-        // return the Updated list
+       
         return rows;
     }
     
