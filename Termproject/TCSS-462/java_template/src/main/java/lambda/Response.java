@@ -22,6 +22,7 @@ public class Response extends saaf.Response {
 
     // Return value
     private String value;
+    
     public String getValue()
     {
         return value;
@@ -46,5 +47,7 @@ public class Response extends saaf.Response {
     {
         return "value=" + this.getValue() + super.toString(); 
     }
+
+    
 
 }

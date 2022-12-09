@@ -9,6 +9,7 @@ public class Request {
     String name;
     private String bucketname;
     private String filename;
+    private int service;
 
     public String getName() {
         return name;
@@ -56,5 +57,19 @@ public class Request {
      */
     public void setFilename(String filename) {
         this.filename = filename;
+    }
+
+    /**
+     * @return the service
+     */
+    public int getService() {
+        return service;
+    }
+
+    /**
+     * @param service the service to set
+     */
+    public void setService(int service) {
+        this.service = service;
     }
 }
