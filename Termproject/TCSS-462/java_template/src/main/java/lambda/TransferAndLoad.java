@@ -10,11 +10,17 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,19 +29,24 @@ import java.util.Date;
 import saaf.Inspector;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static jdk.nashorn.internal.objects.Global.getDate;
 
 /**
  *
- * @author betelhem
+ * @author betelhem & Kemeria
+ * 
  */
 public class TransferAndLoad implements RequestHandler<Request, HashMap<String, Object>> {
     
     String bucketname = "";
     String filename = "";
-    int service = 0;
+    int transferLoad= 0;
+    String className = "TransferAndLoad";
     public HashMap<String, Object> handleRequest(Request request, Context context) {  
         
         //Collect inital data.
@@ -44,9 +55,9 @@ public class TransferAndLoad implements RequestHandler<Request, HashMap<String, 
         
         //****************START FUNCTION IMPLEMENTATION*************************   
         
-        service = request.getService();
+        transferLoad = request.getService();
         
-        switch (service) {
+        switch (transferLoad) {
             case 1:
                 bucketname = request.getBucketname();
                 filename = request.getFilename();
@@ -55,7 +66,7 @@ public class TransferAndLoad implements RequestHandler<Request, HashMap<String, 
             case 2:
                 bucketname = request.getBucketname();
                 filename = request.getFilename();
-                //Load(bucketname, filename);
+                Load(bucketname, filename);
                 break;
         }
         //****************END FUNCTION IMPLEMENTATION***************************
@@ -70,7 +81,7 @@ public class TransferAndLoad implements RequestHandler<Request, HashMap<String, 
 }
     public void transformCSVData(InputStream ipStream) throws IOException{
          
-        final String lineSep=",";
+        final String comma=",";
         
         //ArrayList to hold each row of the csv file
         List<ArrayList<String>> rows = new ArrayList<>();
@@ -79,7 +90,7 @@ public class TransferAndLoad implements RequestHandler<Request, HashMap<String, 
             String row = null;
             
             while ((row = reader.readLine()) != null) {
-                String[] data = row.split(lineSep);
+                String[] data = row.split(comma);
                 
                 ArrayList<String> rowList = new ArrayList<>();
                             
@@ -89,7 +100,7 @@ public class TransferAndLoad implements RequestHandler<Request, HashMap<String, 
             }
         }
         
-        // Do the 4 transformations on the original data
+       
         rows = transformData(rows);     
         
         //Write the Transfomred file to S3
@@ -133,10 +144,13 @@ public class TransferAndLoad implements RequestHandler<Request, HashMap<String, 
         
         return rows;
     }
+    /**
+     * Transform Service 
+     */
     public void Transform(String bucketname, String filename){
         
-        String LOGGER_CLASSNAME = "TransferAndLoad";
-        Logger.getLogger(LOGGER_CLASSNAME+ ": In Transform function");
+        
+        Logger.getLogger(className+ ": In Transform function");
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard().build();
         //get object file using source bucket and srcKey name
         S3Object s3Object = s3Client.getObject(new GetObjectRequest(bucketname, filename));
@@ -144,7 +158,7 @@ public class TransferAndLoad implements RequestHandler<Request, HashMap<String, 
         InputStream objectData = s3Object.getObjectContent();
         
         try {  
-            //Do the transformations on the csv file and write as a new file to S3
+           
             transformCSVData(objectData);
         } catch (IOException ex) {
             Logger.getLogger(TransferAndLoad.class.getName()).log(Level.SEVERE, null, ex);
@@ -268,8 +282,124 @@ public class TransferAndLoad implements RequestHandler<Request, HashMap<String, 
         return rows;
     }
     
-   
     
    
-   
+    /**
+     * Load Service
+     */
+   public void Load(String bucketname, String filename){
+       
+        Logger.getLogger(className+ ": In Load function");
+        try 
+        {
+            Properties properties = new Properties();
+            properties.load(new FileInputStream("db.properties"));
+            
+            String url = properties.getProperty("url");
+            String username = properties.getProperty("username");
+            String password = properties.getProperty("password");
+            String driver = properties.getProperty("driver");
+            
+            Connection con = DriverManager.getConnection(url,username,password);
+            
+            // Detect if the table 'Sales_Data' exists in the database
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'SALESDB' AND TABLE_NAME = 'Sales_Data'");            
+            ResultSet rs = ps.executeQuery();
+            if (!rs.next()) {
+                Logger.getLogger("Create table 'Sales_Data'");
+                ps = con.prepareStatement("CREATE TABLE Sales_Data ("
+                        + " Region varchar(255),"
+                        + " Country varchar(255),"
+                        + " Item Type varchar(255),"
+                        + " Sales Channel varchar(255),"
+                        + " Order Priority varchar(255),"
+                        + " Order Date DATE,"
+                        + " Ship_Date DATE,"
+                        + " Units_Sold INT,"
+                        + " Unit_Price DOUBLE,"
+                        + " Unit_Cost DOUBLE,"
+                        + " Total_Revenue DOUBLE,"
+                        + " Total_Cost DOUBLE,"
+                        + " Total_Profit DOUBLE,"
+                        + " Gross_Margin DOUBLE,"
+                        + " Order Process Time INT,"
+                        + " PRIMARY KEY(Order_ID));");
+                ps.execute();
+            }
+            rs.close();
+            
+            // Delete all rows from table - "Sales_Data" before inserting new rows.
+            ps = con.prepareStatement("Delete from Sales_Data;");
+            ps.execute(); 
+            
+            // Reading the csv file from the S3 Bucket
+            AmazonS3 s3Client = AmazonS3ClientBuilder.standard().build();
+            //get object file using source bucket and srcKey name
+            S3Object s3Object = s3Client.getObject(new GetObjectRequest(bucketname, filename));
+                        
+            //get content of the file
+            InputStream objectData = s3Object.getObjectContent();
+            Scanner scanner = new Scanner(objectData);
+            
+            boolean skip=true; 
+            String record = "";
+            String[] values;
+            String sqlQuery = "INSERT INTO Sales_Data VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            
+            while (scanner.hasNext()) {
+                if(skip) {
+                    skip = false; // Skip the first line - headers
+                    record = scanner.nextLine();
+                    continue;
+                }
+                
+                record = scanner.nextLine();
+                values = record.split(",");               
+                
+                ps = con.prepareStatement(sqlQuery);
+                // Example Insert - Australia and Oceania,Tuvalu,Baby Food,Offline,High,
+                //5/28/2010,669165933,6/27/2010,9925,255.28,159.42,
+                //2533654,1582243.5,951410.5,0.38,30
+                ps.setString(1, values[0]);
+                ps.setString(2, values[1]);
+                ps.setString(3, values[2]);
+                ps.setString(4, values[3]);
+                ps.setString(5, values[4]);
+                ps.setDate(6, getDate(values[5]));
+                ps.setInt(7, getInt(values[6]));
+                ps.setDate(8, getDate(values[7]));
+                ps.setInt(9, getInt(values[8]));
+                ps.setDouble(10, getDouble(values[9]));
+                ps.setDouble(11, getDouble(values[10]));
+                ps.setDouble(12, getDouble(values[11]));
+                ps.setDouble(13, getDouble(values[12]));
+                ps.setDouble(14, getDouble(values[13]));
+                ps.setDouble(15, getDouble(values[14]));
+                ps.setInt(16, getInt(values[15]));
+                
+                ps.executeUpdate();
+                ps.close();			          
+            }
+            scanner.close(); 
+            
+            con.close();                       
+        } catch (SQLException sqlex) {
+            Logger.getLogger("SQL Exception:" + sqlex.toString());
+            Logger.getLogger(sqlex.getMessage());
+        }catch (Exception ex) {
+            Logger.getLogger("Got an exception working with MySQL!" + ex.toString());
+            Logger.getLogger(ex.getMessage());
+        }        
+    }
+    private Integer getInt(String integer) {
+        return Integer.valueOf(integer);
+    }
+
+    private Double getDouble(String doubleVal) {
+        return Double.valueOf(doubleVal);
+}
+     private java.sql.Date getDate(String date) throws Exception {
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yy");
+        return new java.sql.Date(formatter.parse(date).getTime());
+    }
 }
