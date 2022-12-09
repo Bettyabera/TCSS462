@@ -24,6 +24,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * 
+ * @author betelhem 
+ */
 
 public class Transform implements RequestHandler<Request, HashMap<String, Object>> {
     
@@ -36,6 +40,8 @@ public class Transform implements RequestHandler<Request, HashMap<String, Object
      * @param request Request POJO with defined variables from Request.java
      * @param context 
      * @return HashMap that Lambda will automatically convert into JSON.
+     * 
+     * 
      */
     public HashMap<String, Object> handleRequest(Request request, Context context) {
         

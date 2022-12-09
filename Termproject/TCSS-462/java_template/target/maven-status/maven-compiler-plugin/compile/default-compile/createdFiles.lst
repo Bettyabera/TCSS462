@@ -6,6 +6,6 @@ lambda/Load.class
 lambda/TransferAndLoad.class
 saaf/Inspector.class
 saaf/Response.class
-local/Local.class
 lambda/Response.class
+local/Local.class
 ibm/Hello.class
