@@ -1,8 +1,10 @@
+lambda/Load$1.class
 lambda/Request.class
+lambda/Load$1$1.class
 lambda/Transform.class
 lambda/Load.class
 saaf/Inspector.class
 saaf/Response.class
-local/Local.class
 lambda/Response.class
+local/Local.class
 ibm/Hello.class
