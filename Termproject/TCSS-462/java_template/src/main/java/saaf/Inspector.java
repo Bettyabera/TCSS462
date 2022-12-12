@@ -492,6 +492,16 @@ public class Inspector {
         attributes.put("endTime", System.currentTimeMillis());
         return attributes;
     }
+    
+    public HashMap<String, Object> RDSDetails(String clusterName, String tableName) {
+        Long endTime = System.currentTimeMillis();
+        attributes.put("runtime", endTime - startTime);
+        
+        attributes.put("RDS Cluster", clusterName);
+        attributes.put("Table Name", tableName);
+        
+        return attributes;
+    }
 
     /**
      * Finalize the Inspector. Calculator the total runtime and return the HashMap
@@ -596,4 +606,6 @@ public class Inspector {
             return null;
         } 
     }
+
+    
 }

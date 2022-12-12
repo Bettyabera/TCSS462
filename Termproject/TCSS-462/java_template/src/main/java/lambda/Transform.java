@@ -194,8 +194,9 @@ public class Transform implements RequestHandler<Request, HashMap<String, Object
         meta.setContentType("text/plain");
         
         // Create new file on S3
-        String testedFile= "test.csv";
+        
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard().build();
-        s3Client.putObject(bucketname, testedFile, is, meta);
+        
+        s3Client.putObject(bucketname,"test.csv", is, meta);
     }
 }

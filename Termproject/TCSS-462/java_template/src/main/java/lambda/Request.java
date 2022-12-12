@@ -9,6 +9,8 @@ public class Request {
     String name;
     private String bucketname;
     private String filename;
+    private int row;
+    private int col;
     private int service;
 
     public String getName() {
@@ -71,5 +73,33 @@ public class Request {
      */
     public void setService(int service) {
         this.service = service;
+    }
+
+    /**
+     * @return the row
+     */
+    public int getRow() {
+        return row;
+    }
+
+    /**
+     * @param row the row to set
+     */
+    public void setRow(int row) {
+        this.row = row;
+    }
+
+    /**
+     * @return the col
+     */
+    public int getCol() {
+        return col;
+    }
+
+    /**
+     * @param col the col to set
+     */
+    public void setCol(int col) {
+        this.col = col;
     }
 }
