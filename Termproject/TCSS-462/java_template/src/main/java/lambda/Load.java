@@ -51,7 +51,7 @@ public class Load implements RequestHandler<Request, HashMap<String, Object>>
             filename = request.getFilename();
             bucketname = request.getBucketname();
             S3Object s3Object = s3Client.getObject(new GetObjectRequest( bucketname, filename ));
-//            S3Object s3Object = s3Client.getObject(new GetObjectRequest("termprojecttest", "result.csv"));
+
             InputStream objectData = s3Object.getObjectContent();
             //scanning data line by line
             Scanner scanner = new Scanner(objectData);
